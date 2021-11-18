@@ -37,6 +37,8 @@ class GameRoom extends React.Component {
         // Use of keys for test only on browser. Use the
         // provided left and right buttons for mobile version.
         document.addEventListener('keydown', e => {
+
+            // To move bottom paddle
             // key: left arrow
             if (e.keycode === 37 || e.which === 37) {
                 this.setState({ speedPaddle1: -10 })
@@ -46,9 +48,21 @@ class GameRoom extends React.Component {
             if (e.keycode === 39 || e.which === 39) {
                 this.setState({ speedPaddle1: 10 })
             }
+
+            // To move top paddle (For testing purposes only)
+            // key: a
+            if (e.keycode === 65 || e.which === 65) {
+                this.setState({ speedPaddle2: -10 })
+            }
+
+            // key: d
+            if (e.keycode === 68 || e.which === 68) {
+                this.setState({ speedPaddle2: 10 })
+            }
         })
 
         document.addEventListener('keyup', e => {
+
             // key: left arrow
             if (e.keycode === 37 || e.which === 37) {
                 this.setState({ speedPaddle1: 0 })
@@ -57,6 +71,17 @@ class GameRoom extends React.Component {
             // key: right arrow
             if (e.keycode === 39 || e.which === 39) {
                 this.setState({ speedPaddle1: 0 })
+            }
+
+            // To move top paddle (For testing purposes only)
+            // key:
+            if (e.keycode === 65 || e.which === 65) {
+                this.setState({ speedPaddle2: 0 })
+            }
+
+            // key:
+            if (e.keycode === 68 || e.which === 68) {
+                this.setState({ speedPaddle2: 0 })
             }
         })
 
@@ -70,6 +95,7 @@ class GameRoom extends React.Component {
     show() {
         // Paddle movement configuration
         let newPositionPaddle1 = this.state.positionPaddle1 + this.state.speedPaddle1
+        let newPositionPaddle2 = this.state.positionPaddle2 + this.state.speedPaddle2
 
         // To prevent the paddles from going off boundaries
         if (newPositionPaddle1 < 1) {
@@ -110,7 +136,9 @@ class GameRoom extends React.Component {
         // Final state update for this function
         this.setState({
             positionPaddle1: newPositionPaddle1,
+            positionPaddle2: newPositionPaddle2,
             stylePaddle1: { left: `${newPositionPaddle1}px` },
+            stylePaddle2: { left: `${newPositionPaddle2}px` },
             topPositionBall: newTopPositionBall,
             leftPositionBall: newLeftPositionBall,
             styleBall: {
