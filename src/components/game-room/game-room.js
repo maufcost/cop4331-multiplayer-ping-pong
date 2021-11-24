@@ -107,30 +107,64 @@ class GameRoom extends React.Component {
             newPositionPaddle1 = window.innerWidth - this.state.paddleWidth
         }
 
+        if (newPositionPaddle2 < 1) {
+            // 1 px away from the top
+            newPositionPaddle2 = 1
+        }
+
+        if (newPositionPaddle2 >= window.innerWidth - this.state.paddleWidth) {
+            newPositionPaddle2 = window.innerWidth - this.state.paddleWidth
+        }
+
         // Ball movement configuration
         let newTopPositionBall = this.state.topPositionBall + this.state.topSpeedBall
         let newLeftPositionBall = this.state.leftPositionBall + this.state.leftSpeedBall
-
-        // To prevent the ball from going off boundaries
+	let newLeftSpeedBall = this.state.leftSpeedBall
+	let newTopSpeedBall = this.state.topSpeedBall
+        
+	let speedFactor = (Math.random() * 3 + 2)
+        
+	// To prevent the ball from going off boundaries
         // 10 pxs away from the LEFT
         if (newLeftPositionBall <= 0 || newLeftPositionBall >= window.innerWidth - this.state.ballRadius) {
             // This makes the ball bounce.
             console.log('bouncing...')
-            newLeftPositionBall = -newLeftPositionBall
-            this.startBall()
-        }
 
-        if (newTopPositionBall >= window.innerHeight) {
-            console.log('point!')
+            newTopSpeedBall = Math.sign(newTopSpeedBall) * speedFactor
+	    newLeftSpeedBall = -speedFactor
+	    if( newLeftPositionBall <= 0 ){
+		newLeftSpeedBall = speedFactor	
+	    }
+        }
+		
+	// Bounce for paddle 2
+        if ( newTopPositionBall <= this.state.paddleHeight && newTopPositionBall >= this.state.ballRadius ) {
+            console.log('bouncing!')
+
+            if (newLeftPositionBall > newPositionPaddle2 && newLeftPositionBall < newPositionPaddle2 + this.state.paddleWidth) {
+                // The ball bounces back from the paddle
+                console.log('bouncing from paddle')
+                newTopSpeedBall = speedFactor
+		newLeftSpeedBall = Math.sign(newLeftSpeedBall) * speedFactor
+            }
+        }
+	
+	// Bounce for paddle 1
+        if ( newTopPositionBall >= window.innerHeight - this.state.paddleHeight - this.state.ballRadius &&  newTopPositionBall <= window.innerHeight - this.state.paddleHeight) {
+            console.log('bouncing!')
 
             if (newLeftPositionBall > newPositionPaddle1 && newLeftPositionBall < newPositionPaddle1 + this.state.paddleWidth) {
                 // The ball bounces back from the paddle
                 console.log('bouncing from paddle')
-                newTopPositionBall = -newTopPositionBall
+                newTopSpeedBall = -speedFactor
+		newLeftSpeedBall = Math.sign(newLeftSpeedBall) * speedFactor
             }
-            else {
-                this.startBall();
-            }
+        }
+
+        if (newTopPositionBall >= window.innerHeight ) {
+            console.log('point!')
+	    newTopPositionBall = 0
+
         }
 
         // Final state update for this function
@@ -141,6 +175,8 @@ class GameRoom extends React.Component {
             stylePaddle2: { left: `${newPositionPaddle2}px` },
             topPositionBall: newTopPositionBall,
             leftPositionBall: newLeftPositionBall,
+	    leftSpeedBall: newLeftSpeedBall,
+	    topSpeedBall: newTopSpeedBall,
             styleBall: {
                 top: `${newTopPositionBall}px`,
                 left: `${newLeftPositionBall}px`
@@ -174,7 +210,7 @@ class GameRoom extends React.Component {
             moveBy = 1
         }else {
             // Start the ball moving to the left
-            moveBy = -1
+            moveBy = 1
         }
 
         // The ball speeds can be changed here to make the ball
