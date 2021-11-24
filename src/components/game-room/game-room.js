@@ -125,7 +125,8 @@ class GameRoom extends React.Component {
 	let newLeftSpeedBall = this.state.leftSpeedBall
 	let newTopSpeedBall = this.state.topSpeedBall
 	let speedFactor = (Math.random() * 3 + 2)
-        
+        let newOwner = this.state.ballOwner
+
 	// To prevent the ball from going off boundaries
         // 10 pxs away from the LEFT
         if (newLeftPositionBall <= 0 || newLeftPositionBall >= window.innerWidth - this.state.ballRadius) {
@@ -148,6 +149,7 @@ class GameRoom extends React.Component {
                 console.log('bouncing from paddle')
                 newTopSpeedBall = speedFactor
 		newLeftSpeedBall = Math.sign(newLeftSpeedBall) * speedFactor
+		newOwner = 1
             }
         }
 	
@@ -160,6 +162,7 @@ class GameRoom extends React.Component {
                 console.log('bouncing from paddle')
                 newTopSpeedBall = -speedFactor
 		newLeftSpeedBall = Math.sign(newLeftSpeedBall) * speedFactor
+ 		newOwner = 0
             }
         }
 	
@@ -174,6 +177,7 @@ class GameRoom extends React.Component {
             leftPositionBall: newLeftPositionBall,
 	    leftSpeedBall: newLeftSpeedBall,
 	    topSpeedBall: newTopSpeedBall,
+	    ballOwner: newOwner,
             styleBall: {
                 top: `${newTopPositionBall}px`,
                 left: `${newLeftPositionBall}px`
@@ -185,7 +189,10 @@ class GameRoom extends React.Component {
 
         if (newTopPositionBall >= window.innerHeight || newTopPositionBall <= 0 - this.state.ballRadius ) {
             console.log('point!')
-	    this.startBall()	
+	    this.startBall()
+	    if(this.state.ballOwner) {
+		this.setState({lives1: this.lives1 - 1})
+	    }	    
         }
     }
 
@@ -225,11 +232,11 @@ class GameRoom extends React.Component {
         if (Math.random() < 0.5) {
             // Start the ball moving down
             direction = 1
-	    ownership = 1
+	    ownership = 0
         }else {
             // Start the ball moving up
             direction = -1
-	    ownership = 2
+	    ownership = 1
         }
 
         // The ball speeds can be changed here to make the ball
@@ -243,11 +250,13 @@ class GameRoom extends React.Component {
         const stylePaddle1 = this.state.stylePaddle1
         const stylePaddle2 = this.state.stylePaddle2
         const styleBall = this.state.styleBall
+	const lives = this.state.lives1
         return (
             <div className="game-room" style={this.state.roomStyle}>
                 <div className="paddle1" style={stylePaddle1}></div>
                 <div className="ball" style={styleBall}></div>
                 <div className="paddle2" style={stylePaddle2}></div>
+		<div className="owner" align = "left" > Owner: {this.state.ballOwner} </div>
                 <footer>
                     <button onClick={this.goLeft}>Go left</button>
                     <button onClick={this.goRight}>Go right</button>
