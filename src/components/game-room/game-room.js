@@ -13,15 +13,18 @@ class GameRoom extends React.Component {
             halfPaddleHeight: this.paddleHeight / 2,
             speedPaddle1: 0,
             speedPaddle2: 0,
-            positionPaddle1: 0,
-            positionPaddle2: 220,
+            positionPaddle1: window.innerWidth/2 - 40,
+            positionPaddle2: (window.innerWidth/2) - 40,
             topPositionBall: 300,
             leftPositionBall: 100,
             topSpeedBall: 10,
             leftSpeedBall: 0,
             score1: 0,
             score2: 0,
-            stylePaddle1: {},
+            lives1: 3,
+	    lives2: 3,
+	    ballOwner: 0,
+	    stylePaddle1: {},
             stylePaddle2: {},
             styleBall: {},
             roomStyle: {}
@@ -121,7 +124,6 @@ class GameRoom extends React.Component {
         let newLeftPositionBall = this.state.leftPositionBall + this.state.leftSpeedBall
 	let newLeftSpeedBall = this.state.leftSpeedBall
 	let newTopSpeedBall = this.state.topSpeedBall
-        
 	let speedFactor = (Math.random() * 3 + 2)
         
 	// To prevent the ball from going off boundaries
@@ -138,7 +140,7 @@ class GameRoom extends React.Component {
         }
 		
 	// Bounce for paddle 2
-        if ( newTopPositionBall <= this.state.paddleHeight && newTopPositionBall >= this.state.ballRadius ) {
+        if ( newTopPositionBall <= this.state.paddleHeight && newTopPositionBall >= 0 ) {
             console.log('bouncing!')
 
             if (newLeftPositionBall > newPositionPaddle2 && newLeftPositionBall < newPositionPaddle2 + this.state.paddleWidth) {
@@ -150,7 +152,7 @@ class GameRoom extends React.Component {
         }
 	
 	// Bounce for paddle 1
-        if ( newTopPositionBall >= window.innerHeight - this.state.paddleHeight - this.state.ballRadius &&  newTopPositionBall <= window.innerHeight - this.state.paddleHeight) {
+        if ( newTopPositionBall >= window.innerHeight - this.state.paddleHeight - this.state.ballRadius &&  newTopPositionBall <= window.innerHeight) {
             console.log('bouncing!')
 
             if (newLeftPositionBall > newPositionPaddle1 && newLeftPositionBall < newPositionPaddle1 + this.state.paddleWidth) {
@@ -160,13 +162,8 @@ class GameRoom extends React.Component {
 		newLeftSpeedBall = Math.sign(newLeftSpeedBall) * speedFactor
             }
         }
-
-        if (newTopPositionBall >= window.innerHeight ) {
-            console.log('point!')
-	    newTopPositionBall = 0
-
-        }
-
+	
+	
         // Final state update for this function
         this.setState({
             positionPaddle1: newPositionPaddle1,
@@ -182,6 +179,14 @@ class GameRoom extends React.Component {
                 left: `${newLeftPositionBall}px`
             }
         })
+	
+        let newLives1 = this.state.lives1
+        let newLives2 = this.state.lives2
+
+        if (newTopPositionBall >= window.innerHeight || newTopPositionBall <= 0 - this.state.ballRadius ) {
+            console.log('point!')
+	    this.startBall()	
+        }
     }
 
     goLeft() {
@@ -195,28 +200,42 @@ class GameRoom extends React.Component {
     startBall() {
         console.log('startBall called')
         // Initial ball positions
+	let sTop = window.innerHeight/2
+	let sLeft = window.innerWidth/2
         this.setState({
-            topPositionBall: 300,
-            leftPositionBall: 100,
+            topPositionBall: sTop,
+            leftPositionBall: sLeft,
             styleBall: {
-                top: `${300}px`,
-                left: `${100}px`
+                top: `${sTop}px`,
+                left: `${sLeft}px`
             }
         })
 
-        let moveBy = 0;
+        let moveBy = 0
         if (Math.random() < 0.5) {
             // Start the ball moving to the right
             moveBy = 1
         }else {
             // Start the ball moving to the left
-            moveBy = 1
+            moveBy = -1
+        }
+	
+	let direction = 0
+	let ownership = 0
+        if (Math.random() < 0.5) {
+            // Start the ball moving down
+            direction = 1
+	    ownership = 1
+        }else {
+            // Start the ball moving up
+            direction = -1
+	    ownership = 2
         }
 
         // The ball speeds can be changed here to make the ball
         // faster or slower
         const speedFactor = (Math.random() * 3 + 2) // nice params: 6 and 5
-        this.setState({ leftSpeedBall: moveBy * speedFactor, topSpeedBall: speedFactor })
+        this.setState({ leftSpeedBall: moveBy * speedFactor, topSpeedBall: direction * speedFactor, ballOwner: ownership })
     }
 
     render() {
